@@ -1,67 +1,85 @@
-/**
- * 
- */
-package com.vroomcar.VroomCar.serviceImpl;
+package com.vroomCar.Vroomcar.serviceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import org.springframework.stereotype.Component;
+import com.vroomCar.Vroomcar.Service.IRideService;
+import com.vroomCar.Vroomcar.beans.Ride;
+import com.vroomCar.Vroomcar.repository.RideBaseRepository;
 
-import com.vroomcar.VroomCar.beans.Ride;
-
-import come.vroomcar.VroomCar.service.IRideService;
-
-/**
- * @author swatibawankule
- * Service class to implement Ride related logics
- *
- */
-@Component
+@Service 
 public class RideService implements IRideService{
-	
-	ArrayList<Ride> rideList = new ArrayList<Ride>();
-	
 
+	@Autowired
 	
+	RideBaseRepository rideBaseRepository;
+	List <Ride> ride =new ArrayList<Ride>();
 	
-
 	@Override
 	public List<Ride> getAllRides() {
-		// TODO Auto-generated method stub
-		Ride ride1 =  new Ride(1, 27, "swati", "Pune", "Mumbai", 1);
-		Ride ride2 =  new Ride(1, 22, "Neha", "Mumbai", "pune", 1);
-		rideList.add(ride1);
-		rideList.add(ride2);
 		
-		return rideList;
-		
-		
+		ride = (List<Ride>) rideBaseRepository.findAll();
+		return ride;
+	
 	}
-
 	@Override
 	public Ride getRideById(long rideId) {
 		// TODO Auto-generated method stub
+		if(rideBaseRepository.existsById(rideId))
+		{
+		 Ride rideMatch = rideBaseRepository.findById(rideId).get();
+		 return rideMatch;
+		}
+		 
 		return null;
 	}
 
 	@Override
 	public boolean addRide(Ride ride) {
 		// TODO Auto-generated method stub
+		if (rideBaseRepository.existsById(ride.getRideid()))
+		{
+			return false;
+		}
+		rideBaseRepository.save(ride);
+		return true;
+	}
+
+	@Override
+	public Ride updateRide(Ride ride) {
+		// TODO Auto-generated method stub
+		boolean flag;
+		flag=rideBaseRepository.existsById(ride.getRideid());
+		if(flag)
+		{
+			Ride UpdatedRide=rideBaseRepository.save(ride);
+			return UpdatedRide;
+		}
+			return null;
+	}
+
+	@Override
+	public boolean deleteRide(long rideId) {
+		// TODO Auto-generated method stub
+		if(rideBaseRepository.existsById(rideId))
+		{
+		Ride toDelete = rideBaseRepository.findById(rideId).get();
+		rideBaseRepository.delete(toDelete);
+		return true;
+		}
 		return false;
 	}
 
 	@Override
-	public void updateRide(Ride ride) {
+	public List<Ride> getByRideSourceAndDestination(String source, String destination) {
 		// TODO Auto-generated method stub
-		
+		ride=rideBaseRepository.findBySourceAndDestination(source, destination);
+		if(ride.isEmpty())
+		{return null;
+		}
+		return ride;
 	}
-
-	@Override
-	public void deleteRide(int rideId) {
-		// TODO Auto-generated method stub
-		
-	}
-
 
 }
